@@ -1,0 +1,54 @@
+﻿============================================================
+       ENTRENAMIENTO Y TOMA DE DECISIONES: MODELO xG        
+============================================================
+Total de Tiros procesados: 7198
+Distribuci├│n de Clases (Goal vs No Goal):
+- Goles: 807 (11.2%)
+- No Goles: 6391 (88.8%)
+-> Un modelo tonto que siempre diga 'No Gol' tendr├í un Accuracy de: 88.8%
+-> El accuracy NO es la m├®trica adecuada. Evaluaremos por ROC-AUC y Recall.
+
+Analizando correlaciones lineales (Pearson) y dependencia matem├ítica:
+Correlaci├│n con is_goal (Targert):
+is_big_chance       0.382091
+is_penalty          0.234701
+first_touch         0.035749
+is_counter          0.017641
+is_right_foot       0.010069
+from_corner         0.003912
+is_header           0.001602
+angle_to_goal      -0.004504
+is_freekick        -0.015160
+is_left_foot       -0.019868
+is_volley          -0.022623
+distance_to_goal   -0.076540
+Name: is_goal, dtype: float64
+
+Iniciando Validaci├│n Cruzada de 5 divisiones (K-Fold K=5).
+Entrenando e iterando CV para: Regresi├│n Log├¡stica (Requisito Base)...
+Entrenando e iterando CV para: Random Forest Classifier (Avanzado)...
+Entrenando e iterando CV para: XGBoost (Avanzado)...
+
+Resultados K-Fold Cross Validation (Ordenados por ROC-AUC):
+                              Modelo  ROC-AUC   Recall  F1-Score  Accuracy
+                  XGBoost (Avanzado) 0.788354 0.611473  0.455466  0.836053
+ Random Forest Classifier (Avanzado) 0.777000 0.594442  0.481807  0.856721
+Regresi├│n Log├¡stica (Requisito Base) 0.748502 0.642481  0.467287  0.835880
+
+DECISI├ôN BASADA EN DATOS: Se selecciona XGBoost (Avanzado) porque maximiza la capacidad real de distinguir entre gol y no gol (ROC-AUC) controlando los falsos negativos.
+
+Generando m├®tricas Finales de XGBoost (Avanzado) sobre Test de Validaci├│n Oculta:
+Accuracy Final: 84.79% (Vs Baseline 88.8%)
+ROC AUC: 0.7874
+Recall (Tasa verdaderos goles detectados): 0.6025
+Precision: 0.3849
+F1 Score: 0.4697
+Gr├ífico de importancia guardado en ../CODE/plots/xg_feature_importance.png
+
+Top 3 variables predictoras reales (Matem├íticas):
+1. is_big_chance (Score: 0.7181)
+2. distance_to_goal (Score: 0.0382)
+3. is_penalty (Score: 0.0341)
+
+Modelo matem├ítico guardado en disco: ../CODE/models\xg_model_final.joblib
+Misi├│n xG Completada.

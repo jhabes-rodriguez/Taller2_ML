@@ -1,0 +1,25 @@
+﻿============================================================
+             MODELADO DEL PREDICTOR DE PARTIDOS             
+============================================================
+Partidos listos para validaci├│n cruda: 291
+El verdadero Benchmark de Bet365 simulado en nuestro test set puro es de: 50.17%
+
+[ PARTE A: PREDICTOR DE SUMATORIA DE GOLES (VARIABLES CONTINUAS) ]
+M├®tricas K-Fold CV de Goles:
+                               Modelo  MSE Promedio        R2
+    Regresi├│n Ridge L2 (Regularizada)      2.674056 -0.058662
+Regresi├│n Lineal OLS (Base Requisito)      2.791574 -0.105004
+       Random Forest Regressor (Bono)      2.797086 -0.113002
+-> Basados en el M├¡nimo Error Cuadr├ítico Medio, entrenamos: Regresi├│n Ridge L2 (Regularizada)
+
+[ PARTE B: PREDICTOR DE EVENTOS DISCRETOS (LOCAL, EMPATE, VISITANTE) ]
+M├®tricas K-Fold CV Multi-Clases:
+                                         Modelo  Exactitud Real CV (%)
+                      XGBoost Classifier (Bono)              47.083577
+Regresi├│n Log├¡stica Multiclase (Base Requisito)              45.353594
+                Random Forest Classifier (Bono)              38.158971
+
+-> Matriz de decisi├│n: El vencedor elegido como cereza del pastel es el XGBoost Classifier (Bono)
+--> REALIDAD CRUDA DE ML: Bet365 (50.17%) resiste levemente a nuestro mejor modelo (47.08%). El empate futbol├¡stico (Draw) genera much├¡simo ruido estoc├ístico.
+
+===> Fase Predictiva Completada. Pesos guardados listos para UI.
