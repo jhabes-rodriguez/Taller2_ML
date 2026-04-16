@@ -9,9 +9,11 @@ from sklearn.model_selection import KFold, cross_validate, train_test_split, Str
 from sklearn.linear_model import LogisticRegression, LinearRegression, Ridge
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from xgboost import XGBClassifier, XGBRegressor
+from sklearn.model_selection import KFold, cross_validate, train_test_split, StratifiedKFold, TimeSeriesSplit
+from sklearn.linear_model import LogisticRegression, LinearRegression, Ridge
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from xgboost import XGBClassifier, XGBRegressor
 from sklearn.metrics import accuracy_score, confusion_matrix, mean_squared_error, r2_score
-import warnings
-warnings.filterwarnings('ignore')
 
 DATA_DIR = "../DB"
 MODELS_DIR = "../CODE/models"
@@ -38,10 +40,20 @@ def train_match_predictor():
     
     odds_cols = [c for c in df.columns if str(c).lower() in expected_odds]
     
-    features = rolling_cols + odds_cols
+    # IMPORTANTE: Eliminamos odds_cols de las features de entrenamiento para 
+    # evitar Data Leakage y dependencia del modelo en las casas de apuestas.
+    features = rolling_cols
+    
+    # Crear la columna 'season' para el Time Series Split Backtesting
+    df['date_parsed'] = pd.to_datetime(df['date_parsed'])
+    df['season'] = df['date_parsed'].dt.year - (df['date_parsed'].dt.month < 7).astype(int)
     
     # Eliminar NAs de equipos que tienen menos de 5 partidos en su histórico de la liga
-    df_clean = df.dropna(subset=features + ['target_hda', 'total_goals']).copy()
+    df_clean = df.dropna(subset=features + odds_cols + ['target_hda', 'total_goals', 'season']).copy()
+    
+    # Ordenar cronológicamente es crítico
+    df_clean = df_clean.sort_values('date_parsed')
+    
     print(f"Partidos listos para validación cruda: {len(df_clean)}")
     
     # ----------------------------------------------------
@@ -77,19 +89,32 @@ def train_match_predictor():
         "Random Forest Regressor (Bono)": RandomForestRegressor(n_estimators=100, max_depth=4, random_state=42)
     }
     
-    kf = KFold(n_splits=5, shuffle=True, random_state=42)
     reg_results = []
     
+    tscv = TimeSeriesSplit(n_splits=5)
+    X_reg = X.values
+    y_reg_val = y_reg.values
+    
     for name, model in reg_models.items():
-        scores = cross_validate(model, X, y_reg, cv=kf, scoring=('neg_mean_squared_error', 'r2'))
+        mse_scores = []
+        r2_scores = []
+        for train_idx, test_idx in tscv.split(X_reg):
+            X_train, y_train = X_reg[train_idx], y_reg_val[train_idx]
+            X_test, y_test = X_reg[test_idx], y_reg_val[test_idx]
+            
+            model.fit(X_train, y_train)
+            preds = model.predict(X_test)
+            mse_scores.append(mean_squared_error(y_test, preds))
+            r2_scores.append(r2_score(y_test, preds))
+            
         reg_results.append({
             'Modelo': name,
-            'MSE Promedio': -np.mean(scores['test_neg_mean_squared_error']),
-            'R2': np.mean(scores['test_r2'])
+            'MSE Promedio': np.mean(mse_scores),
+            'R2': np.mean(r2_scores)
         })
         
     df_reg = pd.DataFrame(reg_results).sort_values(by="MSE Promedio", ascending=True)
-    print("Métricas K-Fold CV de Goles:")
+    print("Métricas Time Series CV de Goles:")
     print(df_reg.to_string(index=False))
     
     best_reg_name = df_reg.iloc[0]['Modelo']
@@ -110,18 +135,27 @@ def train_match_predictor():
         "XGBoost Classifier (Bono)": XGBClassifier(learning_rate=0.01, max_depth=3, n_estimators=150, random_state=42)
     }
     
-    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     clf_results = []
     
+    y_clf_val = y_clf.values
+    
     for name, model in clf_models.items():
-        scores = cross_validate(model, X, y_clf, cv=skf, scoring='accuracy')
+        acc_scores = []
+        for train_idx, test_idx in tscv.split(X_reg):
+            X_train, y_train = X_reg[train_idx], y_clf_val[train_idx]
+            X_test, y_test = X_reg[test_idx], y_clf_val[test_idx]
+            
+            model.fit(X_train, y_train)
+            preds = model.predict(X_test)
+            acc_scores.append(accuracy_score(y_test, preds))
+            
         clf_results.append({
             'Modelo': name,
-            'Exactitud Real CV (%)': np.mean(scores['test_score']) * 100
+            'Exactitud Real CV (%)': np.mean(acc_scores) * 100
         })
         
     df_clf = pd.DataFrame(clf_results).sort_values(by="Exactitud Real CV (%)", ascending=False)
-    print("Métricas K-Fold CV Multi-Clases:")
+    print("Métricas Time Series CV Multi-Clases:")
     print(df_clf.to_string(index=False))
     
     best_clf_name = df_clf.iloc[0]['Modelo']
