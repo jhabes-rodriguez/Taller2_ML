@@ -86,16 +86,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             const hBanner = document.getElementById('hBanner');
             const team = hSelect.value;
             const logoSet = getLogos(team);
-            
             const avatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(team)}&background=060608&color=b9ff4b&size=512&rounded=true&bold=true`;
             
-            // Lógica de cascada: Primary -> Mirror -> Avatar
+            let attempt = 0;
             hBanner.onerror = () => {
-                if (hBanner.src === logoSet.primary) {
-                    console.log("Fallo Primary, probando Mirror para:", team);
+                attempt++;
+                if (attempt === 1 && logoSet.mirror) {
                     hBanner.src = logoSet.mirror;
-                } else if (hBanner.src === logoSet.mirror) {
-                    console.log("Fallo Mirror, probando Avatar para:", team);
+                } else {
                     hBanner.onerror = null;
                     hBanner.src = avatarFallback;
                 }
@@ -110,13 +108,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             const aBanner = document.getElementById('aBanner');
             const team = aSelect.value;
             const logoSet = getLogos(team);
-            
             const avatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(team)}&background=060608&color=ff4b6e&size=512&rounded=true&bold=true`;
             
+            let attempt = 0;
             aBanner.onerror = () => {
-                if (aBanner.src === logoSet.primary) {
+                attempt++;
+                if (attempt === 1 && logoSet.mirror) {
                     aBanner.src = logoSet.mirror;
-                } else if (aBanner.src === logoSet.mirror) {
+                } else {
                     aBanner.onerror = null;
                     aBanner.src = avatarFallback;
                 }
