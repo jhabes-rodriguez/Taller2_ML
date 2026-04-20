@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premier Predictor AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,600;1,300&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=4">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+</head>
+<body>
+
+<!-- No custom cursor -->
+
+<!-- Tooltip Dinámico para el Shot Map -->
+<div id="tooltip" class="opacity-0 hidden">
+  <div style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; letter-spacing:0.1em; color:var(--acid); text-transform:uppercase; margin-bottom:5px;" id="tt-team">Equipo</div>
+  <div style="font-size:1.4rem; font-weight:700; margin-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;" id="tt-player">Jugador</div>
+  
+  <div style="display:flex; justify-content:space-between; margin-bottom:12px; gap:20px;">
+      <div>
+          <span style="display:block; font-size:0.75rem; color:var(--muted); text-transform:uppercase; margin-bottom:4px;">Resultado</span>
+          <span style="font-size:1rem; font-weight:600;" id="tt-goal">Gol/Fallo</span>
+      </div>
+      <div style="text-align:right;">
+          <span style="display:block; font-size:0.75rem; color:var(--muted); text-transform:uppercase; margin-bottom:4px;">xG (Prob)</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:1rem; font-weight:600;" id="tt-xg">0.00%</span>
+      </div>
+  </div>
+  
+  <div style="display:flex; justify-content:space-between; align-items:center; opacity:0.8;">
+      <div style="font-size:0.8rem; color:#aaa; max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="tt-match">Match</div>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--muted);" id="tt-date">Fecha</div>
+  </div>
+</div>
+
+
+<!-- Animated canvas background -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- Navigation -->
+<nav id="navbar">
+  <div class="nav-logo">Premier<span>AI</span></div>
+  <div class="nav-links">
+    <a href="#predictor">Predictor</a>
+    <a href="#metrics">Métricas</a>
+    <a href="#shotmap">Shot Map</a>
+    <a href="#vs">vs Bet365</a>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <div class="orb" style="width:600px;height:600px;background:var(--acid);top:-200px;right:-100px;animation-duration:10s;"></div>
+    <div class="orb" style="width:400px;height:400px;background:var(--blue);bottom:-100px;left:-100px;animation-duration:7s;animation-delay:-3s;"></div>
+
+    <div class="hero-eyebrow">Machine Learning I — 2026</div>
+    <h1 class="hero-title">
+      <span class="filled">PREMIER</span><br>
+      <span class="accent">PREDICTOR</span><br>
+      <span style="-webkit-text-stroke:1px rgba(255,255,255,0.1); color:transparent;">AI ENGINE</span>
+    </h1>
+    <p class="hero-sub">XGBoost + Rolling Averages. 444,252 eventos procesados. Regresión Ridge y particionamiento puramente cronológico (Time Series Split).</p>
+    <div class="hero-cta">
+      <a href="#predictor" class="btn-primary">Ejecutar Modelo</a>
+      <a href="#metrics" class="btn-outline">Ver Métricas</a>
+    </div>
+
+    <div class="scroll-hint">
+      <span>scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ── MARQUEE ── -->
+  <div class="marquee-section">
+    <div class="marquee-track" id="marquee">
+      <div class="marquee-item"><span class="dot"></span>444,252 Eventos WhoScored</div>
+      <div class="marquee-item"><span class="dot"></span>Regresión Logística L2</div>
+      <div class="marquee-item"><span class="dot"></span>ROC-AUC 0.788</div>
+      <div class="marquee-item"><span class="dot"></span>Time Series Split CV</div>
+      <div class="marquee-item"><span class="dot"></span>Zero Data Leakage</div>
+      <div class="marquee-item"><span class="dot"></span>Rolling Averages Feature Eng.</div>
+      <div class="marquee-item"><span class="dot"></span>Recall Goles 61.1%</div>
+      <div class="marquee-item"><span class="dot"></span>Ridge Regression xG</div>
+      <div class="marquee-item"><span class="dot"></span>XGBoost Multiclass</div>
+      <!-- duplicate for infinite loop -->
+      <div class="marquee-item"><span class="dot"></span>444,252 Eventos WhoScored</div>
+      <div class="marquee-item"><span class="dot"></span>Regresión Logística L2</div>
+      <div class="marquee-item"><span class="dot"></span>ROC-AUC 0.788</div>
+      <div class="marquee-item"><span class="dot"></span>Time Series Split CV</div>
+      <div class="marquee-item"><span class="dot"></span>Zero Data Leakage</div>
+      <div class="marquee-item"><span class="dot"></span>Rolling Averages Feature Eng.</div>
+      <div class="marquee-item"><span class="dot"></span>Recall Goles 61.1%</div>
+      <div class="marquee-item"><span class="dot"></span>Ridge Regression xG</div>
+      <div class="marquee-item"><span class="dot"></span>XGBoost Multiclass</div>
+    </div>
+  </div>
+
+  <!-- ── PREDICTOR ── -->
+  <section class="section" id="predictor">
+    <div class="section-label reveal">01 — Predictor Inteligente</div>
+    <h2 class="section-title reveal reveal-delay-1">MATCH<br><span style="color:var(--acid)">PREDICTOR</span></h2>
+
+    <div class="reveal reveal-delay-2">
+      <div class="predictor-grid" style="position:relative;">
+        <div class="predictor-cell" id="hCell">
+          <img class="bg-banner" id="hBanner" src="">
+          <div class="team-selector">
+            <div class="team-select-wrapper">
+              <label>Equipo Local</label>
+              <select id="homeTeam">
+                <option value="">Cargando...</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="predictor-cell" id="aCell">
+          <img class="bg-banner" id="aBanner" src="">
+          <div class="team-selector">
+            <div class="team-select-wrapper">
+              <label>Equipo Visitante</label>
+              <select id="awayTeam">
+                <option value="">Cargando...</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="vs-divider">VS</div>
+      </div>
+
+      <div class="predict-bar">
+        <div class="predict-result">
+          <div class="result-label">Local Gana</div>
+          <div class="result-value home" id="prob-home">—%</div>
+          <div class="prog-bar-wrap"><div class="prog-bar green" id="bar-home" style="width:0%"></div></div>
+        </div>
+        <div class="predict-result">
+          <div class="result-label">Empate</div>
+          <div class="result-value draw" id="prob-draw">—%</div>
+          <div class="prog-bar-wrap"><div class="prog-bar" id="bar-draw" style="width:0%;background:var(--muted)"></div></div>
+        </div>
+        <div class="predict-result">
+          <div class="result-label">Visita Gana</div>
+          <div class="result-value away" id="prob-away">—%</div>
+          <div class="prog-bar-wrap"><div class="prog-bar" id="bar-away" style="width:0%;background:var(--fire)"></div></div>
+        </div>
+        <div class="predict-result">
+          <div class="result-label">Goles (Ridge)</div>
+          <div class="result-value goals" id="exp-goals">—</div>
+          <div class="prog-bar-wrap"><div class="prog-bar green" style="width:100%"></div></div>
+        </div>
+      </div>
+      
+      <button class="predict-btn full-width" id="predictBtn">
+          EJECUTAR PREDICCIÓN ›
+      </button>
+    </div>
+  </section>
+
+  <!-- ── METRICS ── -->
+  <section class="section" id="metrics">
+    <div class="section-label reveal">02 — Rendimiento</div>
+    <h2 class="section-title reveal reveal-delay-1">MÉTRICAS<br><span style="color:var(--acid)">DEL MODELO</span></h2>
+
+    <div class="metrics-grid reveal reveal-delay-2">
+      <div class="metric-card">
+        <span class="metric-num counter" data-target="788" data-prefix="0." data-suffix="">0.000</span>
+        <div class="metric-label">ROC-AUC Score</div>
+        <div class="metric-sub">Clasificador xG binario. Capacidad discriminativa real.</div>
+      </div>
+      <div class="metric-card">
+        <span class="metric-num counter" data-target="61" data-suffix="%">0%</span>
+        <div class="metric-label">Recall en Goles</div>
+        <div class="metric-sub">De cada 10 goles reales, el modelo detecta ~6.</div>
+      </div>
+      <div class="metric-card">
+        <span class="metric-num counter" data-target="43" data-suffix="%">0%</span>
+        <div class="metric-label">Exactitud H/D/A</div>
+        <div class="metric-sub">Predicción multiclase validada con Time Series Split CV (Cero Data Leakage).</div>
+      </div>
+      <div class="metric-card">
+        <span class="metric-num"><span>444</span>K</span>
+        <div class="metric-label">Eventos Procesados</div>
+        <div class="metric-sub">Tiros, pases y acciones de WhoScored API.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── EDA CHARTS ── -->
+  <section class="section" id="eda">
+    <div class="section-label reveal">03 — Exploratory Data Analysis</div>
+    <h2 class="section-title reveal reveal-delay-1">VISUALIZACIÓN<br><span style="color:var(--acid)">DE DATOS</span></h2>
+
+    <div class="reveal reveal-delay-2" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(400px, 1fr)); gap:2px; background:var(--border); border:1px solid var(--border); border-radius:8px; overflow:hidden;">
+        
+        <div class="metric-card">
+            <div class="result-label" style="font-family:'JetBrains Mono',monospace; font-size:0.75rem; letter-spacing:0.1em; color:var(--acid); text-transform:uppercase; margin-bottom:1.5rem;">Goles Reales vs Expected Goals (xG)</div>
+            <div style="position:relative; width:100%; height:300px;">
+                <canvas id="xgChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="metric-card">
+            <div class="result-label" style="font-family:'JetBrains Mono',monospace; font-size:0.75rem; letter-spacing:0.1em; color:var(--blue); text-transform:uppercase; margin-bottom:1.5rem;">Probabilidad Histórica por Distancia</div>
+            <div style="position:relative; width:100%; height:300px;">
+                <canvas id="distChart"></canvas>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="result-label" style="font-family:'JetBrains Mono',monospace; font-size:0.75rem; letter-spacing:0.1em; color:var(--fire); text-transform:uppercase; margin-bottom:1.5rem;">Balance del Target de Entrenamiento</div>
+            <div style="position:relative; width:100%; height:300px; display:flex; justify-content:center; align-items:center;">
+                <canvas id="pieChart"></canvas>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="result-label" style="font-family:'JetBrains Mono',monospace; font-size:0.75rem; letter-spacing:0.1em; color:var(--text); text-transform:uppercase; margin-bottom:1.5rem;">Bono de Clustering: Perfiles (xG vs xA)</div>
+            <div style="position:relative; width:100%; height:300px;">
+                <canvas id="clusterChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+  </section>
+
+  <!-- ── VS BET365 ── -->
+  <section class="section" id="vs">
+    <div class="section-label reveal">04 — Benchmark</div>
+    <h2 class="section-title reveal reveal-delay-1">NUESTRO<br>MODELO VS<br><span style="color:var(--acid)">BET365</span></h2>
+
+    <div class="reveal reveal-delay-2">
+      <div class="comparison-row">
+        <div class="comp-side">
+          <div class="comp-side-label">Nuestro Modelo ML Puro</div>
+          <div class="comp-big-num win" id="our-pct">43.3%</div>
+          <div class="comp-bar-wrap"><div class="comp-bar green" id="bar-ours" style="width:0%"></div></div>
+        </div>
+        <div class="vs-badge">VS</div>
+        <div class="comp-side" style="text-align:right;">
+          <div class="comp-side-label" style="justify-content:flex-end;display:flex;">Benchmark Bet365</div>
+          <div class="comp-big-num lose">50.1%</div>
+          <div class="comp-bar-wrap"><div class="comp-bar gray" id="bar-bet" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <div style="padding:3rem 0; border-top:1px solid var(--border); margin-top:0;">
+        <p style="color:var(--muted); max-width:600px; line-height:1.8; font-size:0.95rem;">
+          Comparamos el modelo contra el verdadero techo de cristal del fútbol: <strong>Las Casas de Apuestas (50.1%)</strong>.<br><br>
+          Alcanzar un <strong>43.3% garantizando cero Data Leakage</strong> mediante Time Series Split validation demuestra matemáticamente que la algoritmia ha capturado inteligencia deportiva que roza el límite de la incerteza futbolística pura (estocástica).
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SHOT MAP ── -->
+  <section class="section" id="shotmap">
+    <div class="section-label reveal">05 — Inteligencia Espacial</div>
+    <h2 class="section-title reveal reveal-delay-1">xG<br><span style="color:var(--acid)">SHOT MAP</span></h2>
+
+    <div class="reveal reveal-delay-2">
+      <div class="pitch" id="pitch-area">
+        <div class="pitch-lines">
+            <div class="halfway-line"></div>
+            <div class="center-circle"></div>
+            <div class="center-text">MITAD DE CANCHA</div>
+            <div class="penalty-box left">
+                <div class="six-yard left"></div>
+            </div>
+            <div class="penalty-box right">
+                <div class="six-yard right"></div>
+            </div>
+        </div>
+        <div class="pitch-dots" id="shot-dots"></div>
+      </div>
+
+      <div class="shotmap-legend" style="margin-top:2rem; background:rgba(6,6,8,0.6); border:1px solid rgba(255,255,255,0.05); border-radius:8px; display:grid; grid-template-columns:1fr 1fr; gap:2rem; padding:2rem;">
+        
+        <!-- Legend Left: Goals -->
+        <div style="border-right:1px solid rgba(255,255,255,0.05); padding-right:2rem;">
+          <h4 style="color:var(--acid); display:flex; align-items:center; gap:10px; margin-bottom:1.5rem; font-size:1.1rem; border-bottom:1px solid rgba(185,255,75,0.2); padding-bottom:10px;">
+            <div style="width:16px;height:16px;border-radius:50%;background:var(--acid);box-shadow:0 0 10px var(--acid);"></div>
+            Puntos Verdes (Terminaron en Gol)
+          </h4>
+          <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:1.2rem; font-size:0.95rem; color:var(--text);">
+            <li style="display:flex; gap:1rem;">
+                <span style="font-weight:700; white-space:nowrap;">Punto GRANDE: </span>
+                <span style="color:var(--muted);">Gol Esperado. Era altísimamente probable y el jugador cumplió.</span>
+            </li>
+            <li style="display:flex; gap:1rem;">
+                <span style="font-weight:700; white-space:nowrap;">Punto CHIQUITO <span style="color:var(--acid);">¡Golazo!</span>: </span>
+                <span style="color:var(--muted);">Una genialidad del jugador. El modelo le daba un xG casi nulo (tiro lejano o sin ángulo), pero marcó.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Legend Right: Misses -->
+        <div>
+          <h4 style="color:var(--fire); display:flex; align-items:center; gap:10px; margin-bottom:1.5rem; font-size:1.1rem; border-bottom:1px solid rgba(255,75,110,0.2); padding-bottom:10px;">
+            <div style="width:16px;height:16px;border-radius:50%;background:var(--fire);opacity:0.8;"></div>
+            Puntos Rojos (Fallo, al Palo o Atajada)
+          </h4>
+          <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:1.2rem; font-size:0.95rem; color:var(--text);">
+            <li style="display:flex; gap:1rem;">
+                <span style="font-weight:700; white-space:nowrap;">Punto GRANDE <span style="background:rgba(255,75,110,0.2); color:var(--fire); padding:2px 6px; border-radius:4px; font-size:0.8rem;">¡Fallo Garrafal!</span>:</span>
+                <span style="color:var(--muted);">Las matemáticas decían que era "más difícil fallarlo que meterlo" y el jugador erró.</span>
+            </li>
+            <li style="display:flex; gap:1rem;">
+                <span style="font-weight:700; white-space:nowrap;">Punto CHIQUITO: </span>
+                <span style="color:var(--muted);">Fallo predecible. Tiro arriesgado de poca probabilidad.</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>Machine Learning I (ML1-2026I) — Universidad Externado de Colombia</p>
+  <div class="footer-badge">NO DATA LEAKAGE</div>
+</footer>
+
+<script src="app.js?v=8"></script>
+</body>
+</html>
