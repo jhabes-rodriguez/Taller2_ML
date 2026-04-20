@@ -9,7 +9,11 @@ def create_notebook():
 **Máquina: Regresión Lineal, Logística, Árboles de Decisión, XGBoost y Clustering**
 *Curso: Machine Learning I (ML1-2026I) - Universidad Externado de Colombia*
 
+🌐 **Dashboard en vivo:** [https://jhabes-rodriguez.github.io/Taller2_ML/](https://jhabes-rodriguez.github.io/Taller2_ML/)
+
 Este Notebook compila **TODO el Pipeline Analítico Exigido** en un flujo consolidado, demostrando las descargas bulk desde el API, el EDA interactivo, el Feature Engineering (Rolling Averages + Trigonometría), los modelos base (Regresión Lineal y Logística L2) y los Bonos Avanzados de Machine Learning (XGBoost Classifier + Random Forest + K-Means).
+
+El dashboard Cyberpunk incluye: predictor de partidos con escudos oficiales (sistema triple ESPN/GitHub/Avatar), shot map interactivo con tooltips de xG, gráficas EDA y clustering de jugadores K-Means.
 
 ---
 ### 🖥️ FASE 1: INGESTA, EDA Y FEATURE ENGINEERING (Data Oculta de Data Leakage)

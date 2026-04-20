@@ -4,7 +4,7 @@
 - **[Jhabes Esteban Rodriguez Enriquez]** 
 
 ## 🌐 Enlaces del Proyecto
-- **Dashboard Interactivo (Netlify):** [https://lustrous-kitten-3e26b4.netlify.app/](https://lustrous-kitten-3e26b4.netlify.app/)
+- **Dashboard Interactivo (GitHub Pages):** [https://jhabes-rodriguez.github.io/Taller2_ML/](https://jhabes-rodriguez.github.io/Taller2_ML/)
 
 ## 🛠 Descripción del Approach y Features
 Para este proyecto se construyó un pipeline de Machine Learning estructurado para predecir eventos deportivos usando métricas avanzadas:
@@ -30,4 +30,4 @@ Para este proyecto se construyó un pipeline de Machine Learning estructurado pa
    Luego abre `http://localhost:8000` en tu navegador.
 
 ## 📦 Despliegue
-El proyecto está configurado para desplegarse automáticamente en **Netlify** apuntando a la carpeta `/Dashboard`. Se incluye un archivo `netlify.toml` para automatizar este proceso.
+El proyecto está desplegado en **GitHub Pages** usando la rama `gh-pages`. Incluye el dashboard interactivo con predictor de partidos, shot map xG, gráficas EDA y clustering de jugadores.
